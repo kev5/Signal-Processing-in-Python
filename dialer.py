@@ -2,6 +2,21 @@
 #Copyright 2017 Donato Kava dkava@bu.edu
 #Copyright 2017 Keval Khara kevalk@bu.edu
 
+'''
+This python function 'dialer(file_name,frame_rate,phone,tone_time)' 
+creates a WAV file of the sound of a telephone number being dialed.
+
+The parameters are as follows -
+
+file_name, a string representing the name of the WAV file to be created. Do not append ".wav" to this string,
+
+frame_rate, a number representing the number of samples per second to use in the sound,
+
+phone, a string of digits representing a phone number to dial,
+
+tone_time, a number representing the time in seconds of each tone to generate.
+'''
+
 import scipy.io.wavfile as wavfile
 import numpy as np
 def dialer(file_name,frame_rate,phone,tone_time):
