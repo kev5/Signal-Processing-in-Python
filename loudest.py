@@ -23,6 +23,7 @@ loudest: a time signal extracted (filtered) from music which contains only the f
 
 The units of frame_rate, bandwidth, low, and high are all Hz.
 '''
+
 from numpy.fft import *
 import numpy as np
 import math
