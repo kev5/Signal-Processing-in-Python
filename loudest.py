@@ -24,55 +24,52 @@ loudest: a time signal extracted (filtered) from music which contains only the f
 The units of frame_rate, bandwidth, low, and high are all Hz.
 '''
 
-from numpy.fft import *
 import numpy as np
-import math
-import scipy.io.wavfile as wavefile
-import wave
-import struct
-from numpy import pi, cos, sin
+from scipy.fftpack import fft, ifft
 
 def loudest_band(music, frame_rate, bandwidth):
-	# waveFile = wave.open('bach10sec.wav', 'r')
-	# length = waveFile.getnframes()
-	# samples = []
-	# for i in range(0, length):
-	# 	waveData = waveFile.readframes(1)
-	# 	data = struct.unpack(">h", waveData)
-	# 	samples.append(int(data[0]))
-	
-	samples = np.array(music)
-	dft = fft(samples)
-	absolute = np.absolute(dft)
-	energy = np.square(absolute)
+    size = len(music)
+    samples = np.array(music, complex)
+    dft = np.empty((size,), complex)
+    energy = np.empty((size,), complex)
 
-	window = bandwidth * len(energy)/frame_rate
+    dft = fft(samples)
+    energy = np.square(np.absolute(dft))
+    window = int(bandwidth * size/frame_rate)
 
-	bands = []
-	
-	# sliding window
-	for i in range(0, (len(energy)//2-int(window) + 1)):
-		#maxes[i] = np.amax(energy[i:i+int(window)])
-		bands.append(np.sum(energy[i:i+int(window)]))
+    bands = 0
+    maximum = 0
+    low, high = 0, 0
+    for i in range(0, (size//2 - window)):
+    	if i==0:
+    		bands = np.sum(energy[0:window])
+    	else:
+    		bands = bands - energy[i-1] + energy[i+window-1]
+    	if bands>maximum:
+    		maximum = bands
+    		low = i 
+    		high = low + window
 
-	index_of_low = bands.index(max(bands))
+    loudest = np.empty((size,), complex)
 
-	low = dft[index_of_low]
-	high = low + bandwidth
+    for i in range(0, size):
+        if(i >= low and i< high):
+            loudest[i] = dft[i]
+        elif(i >= (size - high) and i < (size - low)):
+            loudest[i] = dft[i]
+        else:
+            loudest[i] = 0
+   
+    inverse = ifft(loudest)
+ 
+    low = int(low * frame_rate / size)
+    high = low + bandwidth
 
-	loudest = []
-	for i in range(0, index_of_low):
-		loudest.append(0)
-	for i in range(index_of_low, len(energy)//2):
-		loudest.append(dft[index_of_low])
+    return (low, high, inverse)
 
-	result = loudest + loudest[::-1]
+def main():
+    music = np.array([1.0, 2.0, 1.0, -1.0, 1.5, 2.6, 7.2, 2.6, 1.5, -1.0, 1.0, 2.0, 1.0])
+    print(loudest_band(music, 1, 2))
 
-	inverse = ifft(result)
-
-	# wavfile.write('out1',frame_rate,inverse)
-
-	return (low, high, inverse)
-
-print(loudest_band(0.8*cos(2*pi*200*2) + 1.2*sin(2*pi*200* 12), 44100, 4))
-# np.array([1.0,2,-3,-3,2,1.0])
+if __name__ == '__main__':
+    main()
