@@ -61,7 +61,6 @@ def loudest_band(music, frame_rate, bandwidth):
             loudest[i] = 0
    
     inverse = ifft(loudest)
- 
     low = int(low * frame_rate / size)
     high = low + bandwidth
 
@@ -73,3 +72,5 @@ def main():
 
 if __name__ == '__main__':
     main()
+
+# runtime = 0.31 s
